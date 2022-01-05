@@ -11,6 +11,9 @@
         android:theme="@style/Theme.GooglePlayInAppReview">
         <activity
             android:name=".MainActivity"
+            android:exported="false" />
+        <activity
+            android:name=".GooglePlayInAppReviewActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
