@@ -2,7 +2,11 @@ package com.triton.googleplayinappreview;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -24,7 +28,7 @@ public class GooglePlayInAppReviewActivity extends AppCompatActivity {
     private void init() {
         reviewManager = ReviewManagerFactory.create(this);
 
-        findViewById(R.id.rateBtn).setOnClickListener(view -> showRateApp());
+        findViewById(R.id.rateBtn).setOnClickListener(view ->   showRateApp());
     }
 
     /**
@@ -36,9 +40,13 @@ public class GooglePlayInAppReviewActivity extends AppCompatActivity {
     public void showRateApp() {
         Task<ReviewInfo> request = reviewManager.requestReviewFlow();
         request.addOnCompleteListener(task -> {
+            Log.d("showRateApp : ","task : "+task);
             if (task.isSuccessful()) {
                 // We can get the ReviewInfo object
                 ReviewInfo reviewInfo = task.getResult();
+                Log.d("showRateApp : ","task : "+task.getResult());
+                Log.d("showRateApp : ","reviewInfo : "+reviewInfo);
+
 
                 Task<Void> flow = reviewManager.launchReviewFlow(this, reviewInfo);
                 flow.addOnCompleteListener(task1 -> {
@@ -62,18 +70,27 @@ public class GooglePlayInAppReviewActivity extends AppCompatActivity {
         new MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.rate_app_title)
                 .setMessage(R.string.rate_app_message)
-                .setPositiveButton(R.string.rate_btn_pos, (dialog, which) -> {
-
-                })
+                .setPositiveButton(R.string.rate_btn_pos, (dialog, which) -> redirectToPlayStore())
                 .setNegativeButton(R.string.rate_btn_neg,
                         (dialog, which) -> {
+                            // take action when pressed not now
                         })
                 .setNeutralButton(R.string.rate_btn_nut,
                         (dialog, which) -> {
+                            // take action when pressed remind me later
                         })
                 .setOnDismissListener(dialog -> {
                 })
                 .show();
+    }
+    // redirecting user to PlayStore
+    public void redirectToPlayStore() {
+        final String appPackageName = "com.sirpi.dvaracattlehealth";
+        try {
+            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + appPackageName)));
+        } catch (ActivityNotFoundException exception) {
+            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + appPackageName)));
+        }
     }
 }
 
